@@ -19,9 +19,10 @@ use 5.8.0;
 use strict;
 use warnings;
 
-our $VERSION = '0.6';
+our $VERSION = '0.8';
 
-use base qw(autobox);
+use autobox;
+use base 'autobox';
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
 # or extended in the same statement e.g.
@@ -443,6 +444,12 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
+Version 0.8 adds the LICENSE section, as requested.
+
+Version 0.7 uses autobox itself so you don't have to, as requested, and
+... oh hell.  I started editing this to fix Schwern's reported v-string
+warning, but I'm not seeing it.
+
 Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
 C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
 drop the Hash::Util dep in the next version since it and Scalar::Util are
@@ -463,6 +470,15 @@ Version 0.3 also added the references to Perl 6 Now and the excerpt.
 Version 0.2 rounded out the API and introduced the beginnings of functional-ish methods.
 
 Version 0.1 was woefully incomplete.
+
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2009 by Scott Walters
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.9 or,
+at your option, any later version of Perl 5 you may have available.
 
 
 =head1 SEE ALSO
@@ -564,6 +580,14 @@ sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
 
 # just weird, but cool
 sub times ($&) { for (0..$_[0]-1) { $_[1]->($_); }; $_[0]; }
+# suggested but bombs test
+#sub times ($;&) {
+#    if ($_[1]) {
+#      for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
+#    } else {
+#        0..$_[0]-1
+#    }
+#}
 
 # doesn't minipulate scalars but works on scalars
 
