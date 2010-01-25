@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               autobox-Core
-version:            0.9
+version:            0.10
 abstract:           Methods for core built-in functions in primitive types
 author:
     - Scott Walters scott@slowass.net
