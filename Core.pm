@@ -19,7 +19,7 @@ use 5.8.0;
 use strict;
 use warnings;
 
-our $VERSION = '0.8';
+our $VERSION = '0.9';
 
 use autobox;
 use base 'autobox';
@@ -443,6 +443,9 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 
 =head1 HISTORY
+
+Version 0.9 fixes directory permissions so PAUSE will hopefully take this thing.
+Otherwise it seems I'd have to wait two days to attempt an upload again.
 
 Version 0.8 adds the LICENSE section, as requested.
 
