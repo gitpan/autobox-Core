@@ -1,7 +1,8 @@
+Changes
 Core.pm
 Makefile.PL
 MANIFEST
 README
 test.pl
-t/added.t
 META.yml                                 Module meta-data (added by MakeMaker)
+t/added.t

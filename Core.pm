@@ -14,12 +14,27 @@ package autobox::Core;
 # autobox::Core::open would have to know how to handle $_[0] being undef and 
 # assigning the open'ed handle into $_[0].
 
-use 5.8.0;
+# TODO:
+
+# o. perl6now.com is bjorked
+# v/ regenerate README
+# v/ docs should show @arr->whatever syntax that works in non-antique autoboxes.
+# v/ steal perl5i's tests too
+# o. steal perl5i's docs too
+# o. IO::Any?
+# o. "appending the user-supplied arguments allows autobox::Core options to be overridden" -- document this if we haven't already
+# o. more Hash::Util methods?
+# o. Hash/Merge/Simple.pm and autobox/List/Util.pm aren't "CORE"
+# o. dammit, List::Util and Scalar::Util are core but they aren't CORE.  split this up into two modules?
+# o. "If this goes over well, I'll make L<Langauge::Functional> a dependency and expose its function as methods on the correct data types. Or maybe I will do this anyway."
+# o. C<each> on hashes. There is no good reason it is missing.
+
+use 5.008;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.10';
+our $VERSION = '0.07';
 
 use autobox;
 use base 'autobox';
@@ -39,26 +54,28 @@ sub import {
 
 =head1 NAME
 
-autobox::Core - Methods for core built-in functions in primitive types
+autobox::Core - Core functions exposed as methods in primitive types
 
 =head1 SYNOPSIS
 
   use autobox::Core;
 
-  "Hello, World\n"->uc()->print();
+  "Hello, World\n"->uc->print;
 
 =head1 DESCRIPTION
 
-Methods wrapping F<perl>'s built-in functions for minipulating numbers, strings, arrays,
-hashes, and code references. It can be handy to use built-in functions as methods to avoid
-messy dereferencing syntaxes and parentheses pile ups.
+The L<autobox> module lets you call methods on primitive datatypes such as
+scalars and arrays.
 
-L<autobox> lets you call methods in scalars that aren't object references.
-Numbers, strings, scalars containing numbers, scalars containing strings,
-array references, hash references, and code references all work as objects.
-L<autobox> adds this feature to L<perl> but does not itself provide any
-methods to call. That is left to the user or another module. For example,
-this module.
+L<autobox::CORE> defines methods for core operations such as C<join>, C<print>, 
+most everything in L<perlfunc>, some things from L<Scalar::Util> and
+L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
+
+These methods expose as methods the built-in functions for minipulating 
+numbers, strings, arrays, hashes, and code references. 
+
+It can be handy to use built-in functions as methods to avoid
+messy dereferencing syntaxes and parentheses pile ups.
 
 F<autobox::Core> is what you'd call a I<stub> module. It is merely glue, presenting
 existing functions with a new interface. Most of the methods read like
@@ -76,60 +93,142 @@ All of the functions listed in L<perldoc> under the headings:
 "Functions for list data",
 and "Functions for SCALARs or strings", plus a few taken from other sections
 and documented below.
-Some things expected in Perl 6, such as C<last>, C<elems>, and C<curry>, have been thrown in.
-For use in conjuction with L<Perl6::Contexts>, C<flatten> explicitly flattens an array.
-Functions have been defined for numeric operations.
+Methods from L<Scalar::Util> and L<List::Util> were thrown in.
+Some things expected in Perl 6, such as C<last> (C<last_idx>), C<elems>, and C<curry>, have been thrown in.
+C<flatten> explicitly flattens an array.
+Functions such as C<add> have been defined for numeric operations.
 
-Of the built-in stuff, the things you use most often on data are all implemented.
 Here's a small sample:
 
-  print [10, 20, 30, 40, 50]->pop(), "\n";
-  print [10, 20, 30, 40, 50]->shift(), "\n";
+  print [10, 20, 30, 40, 50]->pop, "\n";
+  print [10, 20, 30, 40, 50]->shift, "\n";
 
   my $arrref = [10, 20, 30];
 
   my $lala;
-  $lala = "Lalalalala\n"; print "chomp: ", $lala->chomp(), ' ', $lala, "\n";
-  $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst(), ' ', $lala, "\n";
+  $lala = "Lalalalala\n"; print "chomp: ", $lala->chomp, ' ', $lala, "\n";
+  $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
   print "hash keys: ", join ' ', $hashref->keys(), "\n";
 
-Besides those sections of L<perlfunc>, I've implemented
+Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
+
+
+=head3 Scalar String Related Methods
+
+C<concat> is the C<.> operator.
+
+C<strip> is not a built-in operator or function but is instead one of a number of user-defined
+convinience methods.
+C<strip> strips out whitespace from the beginning and end of a string.
+This is redundant and subtely different from C<trim> XXX.
+
+C<trim> strips out whitespace from the beginning and end of a string.
+
+C<title_case>, C<center>, C<ltrim>, C<rtrim>, and C<trim> were taken from L<perl5i>.
+
+C<split> is called on a non-reference scalar with the regular expression passed in. This is
+done for consistency with C<m> and C<s>.
+
+  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
+
+C<chomp>, C<chop>, C<chr>, C<crypt>, C<index>, C<lc>, C<lcfirst>, C<length>, C<ord>,
+C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>, 
+C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
+C<eval>, C<system>, and C<backtick>.
+
+C<m> matches:  C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
+C<nm> corresponds to C<< !~ >>.
+C<s> corresponds to C<< =~ s/// >>.
+
+C<undef> assigns C<undef> to the value.  It is not a test.
+XXX for some reason, there's no C<defined>.
+
+
+=head3 I/O
+
+C<print> and C<say>.
+
+
+=head3 Number Related Methods
+
+C<abs>, C<atan2>, C<cos>, C<exp>, C<int>, C<log>, C<oct>, C<hex>, C<rand>, C<sin>, and C<sqrt> are named after
+the built-in functions of the same name.
+
+Operators were given names as follows:  C<add>, C<and>, C<band>, C<bor>, C<bxor>, C<cmp>, C<dec>, C<div>, C<eq>, C<flip>, C<ge>, C<gt>, C<inc>, C<le>, C<lshift>, C<lt>, C<mod>, C<mult>, C<mcmp>, C<ne>, C<neg>, C<meq>, C<mge>, C<mgt>, C<mle>, C<mlt>, C<mne>, C<not>, C<or>, C<pow>, C<rpt>, C<rshift>, C<sub>, C<xor>.
+
+C<flip> is C<~> which is the binary (rather than boolean) "not".
+
+C<lshift> is C<< << >> and C<rshift> is C<<< >> >>>.
+
+C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came from.
+
+C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
+
+*is_number = \&Scalar::Util::looks_like_number;
+sub is_positive         { $_[0]->is_number && $_[0] > 0 }
+sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_integer          { $_[0]->is_number && ((int($_[0]) - $_[0]) == 0) }
+*is_int = \&is_integer;
+sub is_decimal          { $_[0]->is_number && ((int($_[0]) - $_[0]) != 0) }
+
+That's it.
+
+
+=head3 Reference Related Methods
+
+Besides the "Functions for SCALARs" section of L<perlfunc>, the following were implemented, where they
+make sense:
 C<tie>,
 C<tied>,
 C<ref>,
 C<undef>,
 C<bless>,
-and C<vec>, where they make sense.
+and C<vec>.
 C<tie>, C<tied>, and C<undef> don't work on code references, and C<bless> doesn't work on non-reference
-scalars.
+scalars (okay, that's no longer true).
 C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
+C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a 
+reference; XXX there's currently no counterpart to the C<< \ >> operator, which takes something and gives you
+a reference to it.
+
+
+=head3 Array Methods
+
+Array methods work on both arrays and array references:
 
   my $arr = [ 1 .. 10 ];
   $arr->undef;
 
-Array references can tell you how many elements they contain and the index of their last element:
+Or:
+
+  my @arr = [ 1 .. 10 ];
+  @arr->undef;
+
+Arrays can tell you how many elements they contain and the index of their last element:
 
   my $arr = [ 1 .. 10 ];
   print '$arr contains ', $arr->size,
-        ' elements, the last having an index of ', $arr->last, "\n";
+        ' elements, the last having an index of ', $arr->last_index, "\n";
 
 Array references have a C<flatten> method to dump their elements.
 This is the same as C<< @{$array_ref} >>.
 
   my $arr = [ 1 .. 10 ];
-  print join " -- ", $arr->flatten, "\n";
+  print join ' -- ', $arr->flatten, "\n";
 
-Under L<Perl6::Contexts>, you'll often need to write code equivalent to the follow:
-
-  use Perl6::Contexts;
-  use autobox::Core;
+List context forces methods to return a list:
 
   my @arr = ( 1 .. 10 );
-  do_something(@arr->flatten);
+  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
 
-Array references can be iterated on using C<for> and C<foreach>. Both take a code
+Methods may be chained; scalar context forces methods to return a reference:
+
+  my @arr = ( 1 .. 10 );
+  print @arr->grep(sub { $_ > 3 })->min, "\n";
+
+Arrays can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement.
 C<foreach> passes the current element itself in each pass.
 C<for> passes the index of the current element in to that code block, and then
@@ -141,10 +240,20 @@ the current element, and then a reference to the array itself.
 
 C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
 
-  print $arrref->sum(), "\n";
+  print $arrref->sum, "\n";
 
-If this goes over well, I'll make L<Langauge::Functional> a dependency and expose
-its function as methods on the correct data types. Or maybe I will do this anyway.
+Methods for array creation:  C<to>, C<upto>, and C<downto>.
+
+  1->to(5);      # creates [1, 2, 3, 4, 5]
+  1->upto(5);    # creates [1, 2, 3, 4, 5]
+  5->downto(5);  # creates [5, 4, 3, 2, 1]
+
+These wrap the C<..> operator.
+
+  $arr->first(sub { /5/ });
+
+
+=head3 Hash Methods
 
 C<each> is like C<foreach> but for hash references. For each key in the hash,
 the code reference is invoked with the key and the corresponding value as arguments:
@@ -165,12 +274,8 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 
   print "$street_number $street_name $apartment_number\n";
 
-C<split> is called on a non-reference scalar with the regular expression passed in. This is
-done for consistency with C<m> and C<s>.
 
-  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
-
-C<strip> strips out whitespace from the beginning and end of a string.
+=head3 Code Methods
 
 You may C<curry> code references:
 
@@ -184,11 +289,12 @@ You may C<curry> code references:
 
   $adding_five_to_numbers->(20)->print; "\n"->print;
 
-These work on numbers:
+C<times> executes a coderef a given number of times:
 
-C<add>, C<and>, C<band>, C<bor>, C<bxor>, C<cmp>, C<dec>, C<div>, C<eq>, C<flip>, C<ge>, C<gt>, C<inc>, C<le>, C<lshift>, C<lt>, C<mod>, C<mult>, C<mcmp>, C<ne>, C<neg>, C<meq>, C<mge>, C<mgt>, C<mle>, C<mlt>, C<mne>, C<not>, C<or>, C<pow>, C<rpt>, C<rshift>, C<sub>, C<xor>.
+  5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
 
-That's it.
+XXX round this out
+
 
 =head2 What's Missing?
 
@@ -196,7 +302,8 @@ Many operators.  I'm tired.  I'll do it in the morning.  Maybe.  Send me a patch
 Update:  Someone sent me a patch for numeric operations.
 
 File and socket operations are already implemented in an object-oriented fashion
-care of L<IO::Handle> and L<IO::Socket::INET>.
+care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
+
 Functions listed in the L<perlfunc> headings "System V interprocess communication functions",
 "Fetching user and group info",
 "Fetching network info",
@@ -213,8 +320,8 @@ modules, are keywords and not functions,
 take no arguments,
 or don't make sense as part of the string, number, array, hash, or code API.
 C<srand> because you probably shouldn't be using it.
-C<each> on hashes. 
-There is no good reason it is missing.
+
+C<each> on hashes. There is no good reason it is missing.  XXX.
 
 
 =head2 Autoboxing
@@ -444,16 +551,14 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
-Version 0.10 -- ditto below.
-
-Version 0.9 fixes directory permissions so PAUSE will hopefully take this thing.
-Otherwise it seems I'd have to wait two days to attempt an upload again.
-
-Version 0.8 adds the LICENSE section, as requested.
-
 Version 0.7 uses autobox itself so you don't have to, as requested, and
 ... oh hell.  I started editing this to fix Schwern's reported v-string
 warning, but I'm not seeing it.
+Use C<< ~~ >> on C<< @array->grep >> if we're using 5.10 or newer.
+Add an explicit LICENSE section per request.
+Took many tests and utility functions from L<perl5i>.
+Pays attention to C<wantarray> and returns a list or the reference, as dictated by context.
+C<flatten> should rarely if ever be needed any more.
 
 Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
 C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
@@ -479,7 +584,7 @@ Version 0.1 was woefully incomplete.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2009 by Scott Walters
+Copyright (C) 2009, 2010 by Scott Walters
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
@@ -495,6 +600,10 @@ at your option, any later version of Perl 5 you may have available.
 =item L<Moose::Autobox>
 
 =item L<Perl6::Contexts>
+
+=item L<http://github.com/gitpan/autobox-Core>
+
+=item L<IO::Any>
 
 =item Perl 6: L<< http://dev.perl.org/perl6/apocalypse/ >>.
 
@@ -579,12 +688,12 @@ sub sin     ($)  { CORE::sin($_[0]) }
 sub sqrt    ($)  { CORE::sqrt($_[0]) }
 
 # functions for array creation
-sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
-sub upto ($$) { [ $_[0]..$_[1] ] }
-sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+sub to ($$) { my $res = $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]; wantarray ? @$res : $res }
+sub upto ($$) { wantarray ? ($_[0]..$_[1]) : [ $_[0]..$_[1] ] }
+sub downto ($$) { my $res = [ CORE::reverse $_[1]..$_[0] ]; wantarray ? @$res : $res }
 
-# just weird, but cool
 sub times ($&) { for (0..$_[0]-1) { $_[1]->($_); }; $_[0]; }
+
 # suggested but bombs test
 #sub times ($;&) {
 #    if ($_[1]) {
@@ -640,11 +749,98 @@ sub rshift($$) { $_[0] >> $_[1]; }
 sub sub($$) { $_[0] - $_[1]; }
 sub xor($$) { $_[0] ^ $_[1]; }
 
+# sub bless (\%$)   { CORE::bless $_[0], $_[1] } # HASH, ARRAY, CODE already have a bless() and blessing a non-reference works (autobox finds the reference in the pad or stash!).  "can't bless a non-referenc value" for non-reference lexical and package scalars.  this would work for (\$foo)->bless but then, unlike arrays, we couldn't find the reference to the variable again later so there's not much point I can see.
+
+# from perl5i:
+
+
+sub title_case {
+    my ($string) = @_;
+    $string =~ s/\b(\w)/\U$1/g;
+    return $string;
+}
+
+
+sub center {
+    my ($string, $size, $char) = @_;
+    Carp::carp("Use of uninitialized value for size in center()") if !defined $size;
+    $size = defined($size) ? $size : 0;
+    $char = defined($char) ? $char : 0;
+
+    if (CORE::length $char > 1) {
+        my $bad = $char;
+        $char = CORE::substr $char, 0, 1;
+        Carp::carp("'$bad' is longer than one character, using '$char' instead");
+    }
+
+    my $len             = CORE::length $string;
+
+    return $string if $size <= $len;
+
+    my $padlen          = $size - $len;
+
+    # pad right with half the remaining characters
+    my $rpad            = CORE::int( $padlen / 2 );
+
+    # bias the left padding to one more space, if $size - $len is odd
+    my $lpad            = $padlen - $rpad;
+    
+    return $char x $lpad . $string . $char x $rpad;
+}   
+
+sub ltrim {
+    my ($string,$trim_charset) = @_;
+    $trim_charset = '\s' unless defined $trim_charset;
+    my $re = qr/^[$trim_charset]*/;
+    $string =~ s/$re//;
+    return $string;
+}   
+
+
+sub rtrim {
+    my ($string,$trim_charset) = @_;
+    $trim_charset = '\s' unless defined $trim_charset;
+    my $re = qr/[$trim_charset]*$/;
+    $string =~ s/$re//;
+    return $string;
+}   
+
+
+sub trim {
+    my $charset = $_[1];
+    
+    return rtrim(ltrim($_[0], $charset), $charset);
+}
+
+# POSIX is huge
+#require POSIX;
+#*ceil  = \&POSIX::ceil;
+#*floor = \&POSIX::floor;
+#*round_up   = \&ceil;
+#*round_down = \&floor;
+#sub round {
+#    abs($_[0] - int($_[0])) < 0.5 ? round_down($_[0])
+#                                  : round_up($_[0])
+#}   
+    
+require Scalar::Util;
+*is_number = \&Scalar::Util::looks_like_number;
+sub is_positive         { $_[0]->is_number && $_[0] > 0 }
+sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_integer          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) == 0) }
+*is_int = \&is_integer;
+sub is_decimal          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) != 0) }
+
+
+##########################################################
+
 #
 # HASH
 #
 
 package autobox::Core::HASH;
+
+use Carp 'croak';
 
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
@@ -688,28 +884,98 @@ use Hash::Util;
 
 sub lock_keys (\%) { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
 
+# from perl5i
+
+sub flip {
+    croak "Can't flip hash with references as values"
+        if grep { CORE::ref } CORE::values %{$_[0]};
+ 
+    return { reverse %{$_[0]} };
+}
+ 
+sub merge {
+    require Hash::Merge::Simple;
+    Hash::Merge::Simple::merge(@_);
+}
+
 #
 # ARRAY
 #
 ##############################################################################################
 package autobox::Core::ARRAY;
 
+use constant FIVETEN => ($] >= 5.010);
+
+use Carp 'croak';
+
 #       Functions for list data
 #           "grep", "join", "map", "qw/STRING/", "reverse",
 #           "sort", "unpack"
 
-sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
-sub join (\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
-sub map (\@&) { my $arr = CORE::shift; my $sub = shift; [ CORE::map { $sub->($_) } @$arr ]; }
-sub reverse (\@) { [ CORE::reverse @{$_[0]} ] }
-sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+# at one moment, perl5i had this in it:
+
+#sub grep {
+#    my ( $array, $filter ) = @_;
+#    my @result = CORE::grep { $_ ~~ $filter } @$array;
+#    return wantarray ? @result : \@result;
+#}
+
+sub grep { 
+    no warnings 'redefine';
+    if(FIVETEN) {
+         eval '
+             # protect perl 5.8 from the alien, futuristic syntax of 5.10
+             *grep = sub {
+                 my $arr = CORE::shift; 
+                 my $filter = CORE::shift; 
+                 my @result = CORE::grep { $_ ~~ $filter } @$arr;
+                 return wantarray ? @result : \@result;
+             }
+        ' or croak $@;
+    } else {
+        *grep = sub {
+             my $arr = CORE::shift; 
+             my $filter = CORE::shift; 
+             my @result;
+             if( CORE::ref $filter eq 'Regexp' ) {
+                 @result = CORE::grep { m/$filter/ } @$arr;
+             } elsif( ! ref $filter ) {
+                 @result = CORE::grep { $filter eq $_ } @$arr;  # find all of the exact matches
+             } else {
+                 @result = CORE::grep { $filter->($_) } @$arr;
+             }
+             return wantarray ? @result : \@result;
+        };
+    }
+    autobox::Core::ARRAY::grep(@_);
+}
+
+# last version: sub map (\@&) { my $arr = CORE::shift; my $sub = shift; [ CORE::map { $sub->($_) } @$arr ]; }
+
+sub map {
+    my( $array, $code ) = @_;
+    my @result = CORE::map { $code->($_) } @$array;
+    return wantarray ? @result : \@result;
+}
+
+sub join { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
+
+sub reverse { my @res = CORE::reverse @{$_[0]}; wantarray ? @res : \@res; }
+
+sub sort { 
+    my $arr = CORE::shift; 
+    my $sub = CORE::shift() || sub { $a cmp $b }; 
+    my @res = CORE::sort { $sub->($a, $b) } @$arr; 
+    return wantarray ? @res : \@res;
+}
 
 # functionalish stuff
 
-sub sum (\@) { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res; }
-sub mean(\@) { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res/@$arr; }
-sub var(\@)
-{
+sub sum { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res; }
+
+sub mean { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res/@$arr; }
+
+sub var {
 	my $arr = CORE::shift;
 	my $mean = 0;
 	$mean += $_ foreach(@$arr);
@@ -718,8 +984,8 @@ sub var(\@)
 	$res += ($_-$mean)**2 foreach (@$arr);
 	$res/@$arr;
 }
-sub svar(\@)
-{
+
+sub svar(\@) {
 	my $arr = CORE::shift;
 	my $mean = 0;
 	$mean += $_ foreach(@$arr);
@@ -730,72 +996,122 @@ sub svar(\@)
 }
 
 sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+
 sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
 
 #       Functions for real @ARRAYs
 #           "pop", "push", "shift", "splice", "unshift"
 
-sub pop (\@) { CORE::pop @{$_[0]}; }
+sub pop (\@) { CORE::pop @{$_[0]}; wantarray ? @{$_[0]} : $_[0] }
+
 sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
-sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
-sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]] }
-sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; }
-sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
+
+sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); wantarray ? @$a : $a; }
+
+sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]]; wantarray ? @$arr : $arr  }
+
+sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; wantarray ? @$arr : $arr }
+
+sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; wantarray ? @$arr : $arr} # last to prevent having to prefix normal shift calls with CORE::
 
 sub undef   ($)   { $_[0] = [] }
 
 # doesn't modify array
+
 sub exists (\@$) { my $arr = CORE::shift; CORE::scalar(CORE::grep {$_ eq $_[0]} @$arr) > 0; }
+
 sub at(\@$) { my $arr = CORE::shift; $arr->[$_[0]]; }
+
 sub count(\@$) { my $arr = CORE::shift; scalar(CORE::grep {$_ eq $_[0]} @$arr); }
-sub uniq(\@) { my $arr = CORE::shift; my %h; [ CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr ] } # shamelessly from List::MoreUtils
+
+sub uniq(\@) { my $arr = CORE::shift; my %h; my @res = CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr; wantarray ? @res : \@res; } # shamelessly from List::MoreUtils
 
 # tied and blessed
 
 sub bless (\@$)   { CORE::bless $_[0], $_[1] }
+
 sub tie   (\@$;@) { CORE::tie   $_[0], @_[1 .. $#_] }
+
 sub tied  (\@)    { CORE::tied  $_[0] }
+
 sub ref   (\@)    { CORE::ref   $_[0] }
 
 # perl 6-ish extensions to Perl 5 core stuff
 
-sub first(\@) { my $arr = CORE::shift; $arr->[0]; }
-sub last (\@) { my $arr = CORE::shift; $#$arr; }
-sub size (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
-sub elems (\@) { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
-sub length (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
+# sub first(\@) { my $arr = CORE::shift; $arr->[0]; } # old, incompat version
+
+sub first {
+    # from perl5i, modified
+    # XXX needs test.  take from perl5i?
+    no warnings "redefine";
+    if(FIVETEN) {
+         eval '
+             # protect perl 5.8 from the alien, futuristic syntax of 5.10
+             *first = sub {
+                 my ( $array, $filter ) = @_;
+                 # Deep recursion and segfault (lines 90 and 91 in first.t) if we use
+                 # the same elegant approach as in grep().
+                 if ( @_ == 1 ) {
+                     return $array->[0];
+                 } elsif ( CORE::ref $filter eq "Regexp" ) {
+                     return List::Util::first( sub { $_ ~~ $filter }, @$array );
+                 } else {
+                     return List::Util::first( sub { $filter->() }, @$array );
+                 }
+             };
+        ' or croak $@;
+    } else {
+        *first = sub {
+            my ( $array, $filter ) = @_;
+            if ( @_ == 1 ) {
+                return $array->[0];
+            } elsif ( CORE::ref $filter eq "Regexp" ) {
+                return List::Util::first( sub { $_ =~ m/$filter/ }, @$array );
+            } else { 
+                return List::Util::first( sub { $filter->() }, @$array );
+            }
+        };
+    }
+    autobox::Core::ARRAY::first(@_);
+}
+
+sub last_index { my $arr = CORE::shift; $#$arr; }
+sub size { my $arr = CORE::shift; CORE::scalar @$arr; }
+sub elems { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
+sub length { my $arr = CORE::shift; CORE::scalar @$arr; }
 
 # misc
 
-sub each (\@$) {
+sub each {
     # same as foreach(), apo12 mentions this
+    # XXX should we try to build a result list if we're in non-void context?
     my $arr = CORE::shift; my $sub = CORE::shift;
     foreach my $i (@$arr) {
         $sub->($i);
     }
 }
 
-sub foreach (\@$) {
+sub foreach {
     my $arr = CORE::shift; my $sub = CORE::shift;
     foreach my $i (@$arr) {
         $sub->($i);
     }
 }
 
-sub for (\@$) {
+sub for {
     my $arr = CORE::shift; my $sub = CORE::shift;
     for(my $i = 0; $i < $#$arr; $i++) {
         $sub->($i, $arr->[$i], $arr);
     }
 }
 
-sub print   (\@) { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr"; }
-sub say   (\@) { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
+sub print { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr"; }
+sub say { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
 
 # local
 
-sub elements (\@) { ( @{$_[0]} ) }
-sub flatten (\@) { ( @{$_[0]} ) }
+sub elements { ( @{$_[0]} ) }
+sub flatten { ( @{$_[0]} ) }
 
 ##############################################################################################
 
@@ -805,16 +1121,16 @@ sub flatten (\@) { ( @{$_[0]} ) }
 
 package autobox::Core::CODE;
 
-sub bless ($$)   { CORE::bless $_[0], $_[1] }
-sub ref   ($)    { CORE::ref   $_[0] }
+sub bless    { CORE::bless $_[0], $_[1] }
+sub ref       { CORE::ref   $_[0] }
 
 # perl 6-isms
 
-sub curry (\&) { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
+sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
 
 # local - polymorphic
 
-sub map (&@) { my $code = CORE::shift; [ CORE::map { $code->($_) } @_ ]; }
+sub map  { my $code = CORE::shift; my @res = CORE::map { $code->($_) } @_; wantarray ? @res : \@res; }
 
 1;
 
