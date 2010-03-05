@@ -34,7 +34,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.07';
+our $VERSION = '0.7';
 
 use autobox;
 use base 'autobox';
