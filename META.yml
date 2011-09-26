@@ -1,23 +1,25 @@
---- #YAML:1.0
-name:               autobox-Core
-version:            1.2
-abstract:           Core functions exposed as methods in primitive types
+---
+abstract: 'Core functions exposed as methods in primitive types'
 author:
-    - Scott Walters scott@slowass.net
-license:            unknown
-distribution_type:  module
+  - 'Scott Walters scott@slowass.net'
+build_requires:
+  ExtUtils::MakeMaker: 0
 configure_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    autobox:  0.11
-resources:
-    bugtracker:  http://github.com/scrottie/autobox-Core/issues
-    repository:  http://github.com/scrottie/autobox-Core
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.48
+  ExtUtils::MakeMaker: 6.46
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112150'
+license: unknown
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: autobox-Core
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  autobox: 2.71
+resources:
+  bugtracker: http://github.com/scrottie/autobox-Core/issues
+  repository: http://github.com/scrottie/autobox-Core
+version: 1.21
