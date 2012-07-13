@@ -1,5 +1,51 @@
 Revision history for autobox::Core
 
+1.22  Thu Jul 12 17:16:06 PDT 2012
+    New Features
+    - %hash->each is now guaranteed to iterate through the complete hash,
+      unlike each(%hash). [github 7]
+    - defined()
+
+    Distribution Changes
+    - Added Test::More 0.88 as a pre-req
+    - Added license for new versions of EMM
+
+    Docs
+    - Expanded module synopsis
+    - Wrote documentation for all (or most) functions
+    - Tidied book extract
+
+    Incompatible changes
+    - Removed functions
+      - rand
+      - times
+      - add
+      - band
+      - bor
+      - bxor
+      - div
+      - eq
+      - flip
+      - ge
+      - gt
+      - le
+      - lshift
+      - mult
+      - mcmp
+      - ne
+      - meq
+      - mge
+      - mgt
+      - mle
+      - mlt
+      - mne
+      - rshift
+      - sub
+      - autobox::Core::CODE::map
+
+    Bug Fixes
+    - xor uses xor instead of ^
+
 1.21  Mon Sep 26 16:15:19 PDT 2011
     New Features
     - $string->reverse will now always reverse the string regardless of context.
@@ -14,6 +60,7 @@ Revision history for autobox::Core
     Misc
     - removed unnecessary prototypes on methods (schwern)
     - updated dependency on autobox
+
 
 1.2 Fri Mar 19 12:11:00 2010
     - fixes version 1.1 losing the MANIFEST and being essentially

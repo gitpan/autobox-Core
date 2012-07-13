@@ -5,9 +5,14 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME               => 'autobox::Core',
     VERSION_FROM       => 'lib/autobox/Core.pm',               # finds $VERSION
-    PREREQ_PM          => {autobox => 2.71},
+    PREREQ_PM          => {
+        autobox => 2.71,
+        'Test::More' => 0.88,
+
+    },
     ABSTRACT_FROM      => 'lib/autobox/Core.pm',               # retrieve abstract from module
     AUTHOR             => 'Scott Walters scott@slowass.net',
+    (eval($ExtUtils::MakeMaker::VERSION) >= 6.31 ? (LICENSE => 'perl') : ()),
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => '6.46',                       # for META_MERGE
     },

@@ -58,6 +58,7 @@ t/split.t
 t/sprintf.t
 t/strip.t
 t/substr.t
+t/synopsis.t
 t/system.t
 t/tail.t
 t/uc.t
@@ -67,5 +68,3 @@ t/unpack.t
 t/unshift.t
 t/values.t
 t/vec.t
-META.json                                Module JSON meta-data (added by MakeMaker)
-SIGNATURE                                Public-key signature (added by MakeMaker)

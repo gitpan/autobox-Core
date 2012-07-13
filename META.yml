@@ -1,25 +1,26 @@
----
-abstract: 'Core functions exposed as methods in primitive types'
+--- #YAML:1.0
+name:               autobox-Core
+version:            1.22
+abstract:           Provide core functions to autoboxed scalars, arrays and hashes.
 author:
-  - 'Scott Walters scott@slowass.net'
-build_requires:
-  ExtUtils::MakeMaker: 0
+    - Scott Walters scott@slowass.net
+license:            perl
+distribution_type:  module
 configure_requires:
-  ExtUtils::MakeMaker: 6.46
-dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112150'
-license: unknown
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: autobox-Core
-no_index:
-  directory:
-    - t
-    - inc
+    ExtUtils::MakeMaker:  6.46
+build_requires:
+    ExtUtils::MakeMaker:  0
 requires:
-  autobox: 2.71
+    autobox:     2.71
+    Test::More:  0.88
 resources:
-  bugtracker: http://github.com/scrottie/autobox-Core/issues
-  repository: http://github.com/scrottie/autobox-Core
-version: 1.21
+    bugtracker:  http://github.com/scrottie/autobox-Core/issues
+    repository:  http://github.com/scrottie/autobox-Core
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.57_05
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
