@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               autobox-Core
-version:            1.22
+version:            1.23
 abstract:           Provide core functions to autoboxed scalars, arrays and hashes.
 author:
     - Scott Walters scott@slowass.net
