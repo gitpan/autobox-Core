@@ -1,10 +1,8 @@
-autobox-Core-1.22.tar.gz
 Changes
 lib/autobox/Core.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
-META.yml
 README
 t/added.t
 t/array-slice.t
@@ -69,3 +67,4 @@ t/unpack.t
 t/unshift.t
 t/values.t
 t/vec.t
+META.yml                                 Module meta-data (added by MakeMaker)
