@@ -23,4 +23,4 @@ requires:
 resources:
   bugtracker: http://github.com/scrottie/autobox-Core/issues
   repository: http://github.com/scrottie/autobox-Core
-version: 1.25
+version: 1.26
